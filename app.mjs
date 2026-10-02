@@ -5,7 +5,7 @@ import {parseLastlinkEvent} from './lastlink.mjs';
 const root=new URL('./',import.meta.url);
 const files=Object.fromEntries(['public/login.html','private/playbook.html','private/bonus.html'].map(p=>[p,readFileSync(new URL(p,root),'utf8')]));
 const eq=(a,b)=>{const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y)};
-export function createApp({store,secret,origin,secure=true,now=()=>Date.now(),lastlinkProductId='',lastlinkWebhookSecret=''}){
+export function createApp({store,secret,origin,secure=true,now=()=>Date.now(),lastlinkProductId='',lastlinkWebhookSecret='',lastlinkToken=''}){
  if(!secret||secret.length<32)throw Error('SESSION_SECRET deve ter ao menos 32 caracteres.');
  if(lastlinkProductId&&!lastlinkWebhookSecret)throw Error('Configure LASTLINK_WEBHOOK_SECRET para ativar a integração.');
  if(lastlinkWebhookSecret && !/^[a-f0-9]{64}$/.test(lastlinkWebhookSecret))throw Error('LASTLINK_WEBHOOK_SECRET precisa ter 64 caracteres hexadecimais.');
@@ -24,6 +24,8 @@ export function createApp({store,secret,origin,secure=true,now=()=>Date.now(),la
    const path=new URL(req.url,'http://local').pathname;
    if(req.method==='GET'&&path==='/health')return send(200,{ok:true});
    if(req.method==='POST'&&lastlinkWebhookSecret&&path==='/webhook/lastlink/'+lastlinkWebhookSecret){
+    if(lastlinkProductId&&!lastlinkToken)return send(503,{error:'Token da integração não configurado.'});
+    if(lastlinkToken&&!eq(req.headers['x-lastlink-token']||'',lastlinkToken))return send(401,{error:'Token inválido.'});
     if(!String(req.headers['content-type']||'').toLowerCase().startsWith('application/json'))return send(415,{error:'Envie JSON.'});
     let size=0,chunks=[];for await(const chunk of req){size+=chunk.length;if(size>65536)return send(413,{error:'Solicitação muito grande.'});chunks.push(chunk)}
     let body;try{body=JSON.parse(Buffer.concat(chunks).toString())}catch{return send(400,{error:'JSON inválido.'})}
@@ -37,6 +39,8 @@ export function createApp({store,secret,origin,secure=true,now=()=>Date.now(),la
     const event=parseLastlinkEvent(body,lastlinkProductId);
     if(event.kind==='invalid')return send(400,{error:'Evento inválido.'});
     if(event.kind==='purchase')await store.applyLastlink(event);
+    console.log('Lastlink evento:',JSON.stringify({result:event.kind,tokenValidated:Boolean(lastlinkToken),
+     productMatched:Array.isArray(body?.Data?.Products)&&body.Data.Products.some(p=>p?.Id===lastlinkProductId)}));
     return send(200,{ok:true});
    }
    if(req.method==='POST'){

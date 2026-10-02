@@ -4,6 +4,7 @@ const origin=new URL(process.env.APP_ORIGIN).origin;
 if(!origin.startsWith('https://'))throw Error('APP_ORIGIN precisa usar HTTPS.');
 const server=createApp({store,secret:process.env.SESSION_SECRET,origin,
  lastlinkProductId:process.env.LASTLINK_PRODUCT_ID,
+ lastlinkToken:process.env.LASTLINK_TOKEN,
  lastlinkWebhookSecret:process.env.LASTLINK_WEBHOOK_SECRET});
 await pool.query('SELECT id FROM compradores LIMIT 0');
 await pool.query('SELECT id FROM compras LIMIT 0');

@@ -38,11 +38,14 @@ test('webhook recebe somente evento válido do produto configurado',async()=>{
   const received=[];
   const store={byEmail:async()=>null,byId:async()=>null,applyLastlink:async event=>received.push(event)};
   const server=createApp({store,secret:'s'.repeat(64),origin:'http://local',secure:false,
-    lastlinkProductId:productId,lastlinkWebhookSecret:secret});
+    lastlinkProductId:productId,lastlinkWebhookSecret:secret,lastlinkToken:'token-lastlink-teste'});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const base=`http://127.0.0.1:${server.address().port}`;
-  const post=(url,body)=>fetch(base+url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const post=(url,body,token='token-lastlink-teste')=>fetch(base+url,{method:'POST',headers:{'Content-Type':'application/json','x-lastlink-token':token},body:JSON.stringify(body)});
   try{
+    assert.equal((await post('/webhook/lastlink/'+secret,payload('Purchase_Order_Confirmed'),'')).status,401);
+    assert.equal((await post('/webhook/lastlink/'+secret,payload('Purchase_Order_Confirmed'),'incorreto')).status,401);
+    assert.equal(received.length,0);
     assert.equal((await post('/webhook/lastlink/errado',payload('Purchase_Order_Confirmed'))).status,403);
     assert.equal((await post('/webhook/lastlink/'+secret,payload('Purchase_Order_Confirmed',{IsTest:true}))).status,200);
     assert.equal((await post('/webhook/lastlink/'+secret,payload('Purchase_Order_Confirmed',{Data:{...payload('x').Data,Products:[{Id:'outro'}]}}))).status,200);
