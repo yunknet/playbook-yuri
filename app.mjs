@@ -1,11 +1,14 @@
 import http from 'node:http';
 import {readFileSync} from 'node:fs';
 import {createHmac,timingSafeEqual,randomBytes} from 'node:crypto';
+import {parseLastlinkEvent} from './lastlink.mjs';
 const root=new URL('./',import.meta.url);
 const files=Object.fromEntries(['public/login.html','private/playbook.html','private/bonus.html'].map(p=>[p,readFileSync(new URL(p,root),'utf8')]));
 const eq=(a,b)=>{const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y)};
-export function createApp({store,secret,origin,secure=true,now=()=>Date.now()}){
+export function createApp({store,secret,origin,secure=true,now=()=>Date.now(),lastlinkProductId='',lastlinkWebhookSecret=''}){
  if(!secret||secret.length<32)throw Error('SESSION_SECRET deve ter ao menos 32 caracteres.');
+ if(lastlinkProductId&&!lastlinkWebhookSecret)throw Error('Configure LASTLINK_WEBHOOK_SECRET para ativar a integração.');
+ if(lastlinkWebhookSecret && !/^[a-f0-9]{64}$/.test(lastlinkWebhookSecret))throw Error('LASTLINK_WEBHOOK_SECRET precisa ter 64 caracteres hexadecimais.');
  const sign=x=>createHmac('sha256',secret).update(x).digest('base64url');
  const cookie=(v,age)=>`yuri_session=${v}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${age}${secure?'; Secure':''}`;
  const attempts=new Map();
@@ -20,6 +23,22 @@ export function createApp({store,secret,origin,secure=true,now=()=>Date.now()}){
   try{
    const path=new URL(req.url,'http://local').pathname;
    if(req.method==='GET'&&path==='/health')return send(200,{ok:true});
+   if(req.method==='POST'&&lastlinkWebhookSecret&&path==='/webhook/lastlink/'+lastlinkWebhookSecret){
+    if(!String(req.headers['content-type']||'').toLowerCase().startsWith('application/json'))return send(415,{error:'Envie JSON.'});
+    let size=0,chunks=[];for await(const chunk of req){size+=chunk.length;if(size>65536)return send(413,{error:'Solicitação muito grande.'});chunks.push(chunk)}
+    let body;try{body=JSON.parse(Buffer.concat(chunks).toString())}catch{return send(400,{error:'JSON inválido.'})}
+    if(!lastlinkProductId){
+     const products=Array.isArray(body?.Data?.Products)?body.Data.Products:[];
+     console.log('Lastlink diagnóstico:',JSON.stringify({test:body?.IsTest===true,
+      productIds:products.map(p=>p?.Id).filter(id=>typeof id==='string'&&/^[a-zA-Z0-9-]{1,100}$/.test(id)),
+      headerNames:Object.keys(req.headers)}));
+     return send(200,{ok:true,mode:'diagnostic',accessGranted:false});
+    }
+    const event=parseLastlinkEvent(body,lastlinkProductId);
+    if(event.kind==='invalid')return send(400,{error:'Evento inválido.'});
+    if(event.kind==='purchase')await store.applyLastlink(event);
+    return send(200,{ok:true});
+   }
    if(req.method==='POST'){
     if(req.headers.origin!==origin)return send(403,{error:'Origem não autorizada.'});
     if(path==='/logout'){res.setHeader('Set-Cookie',cookie('',0));return redirect('/')}
