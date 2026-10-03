@@ -4,7 +4,7 @@ Pacote para um NOVO serviço App do EasyPanel, sugerido `playbook-yuri`. Não se
 
 ## O que foi implementado
 
-- Página de login com a marca do HTML original, azul-marinho e dourado, senha pública `bookplay`, botão copiar e WhatsApp 5538991118169.
+- Página de login com a marca do HTML original, azul-marinho e dourado, senha pública `bookplay` e botão copiar. Os links de suporte no login e o botão flutuante do Playbook foram removidos.
 - Backend Node.js dentro do container, compatível com as tabelas `compradores` e `compras` já criadas. Não exige instalar PHP no host.
 - Conteúdo principal entregue somente com sessão válida e compra aprovada para `playbook-yuri`.
 - Cookie assinado, HttpOnly, Secure, SameSite=Lax, válido por oito horas. A situação da compra é conferida a cada requisição protegida.
