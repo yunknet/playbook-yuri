@@ -10,6 +10,7 @@ Pacote para um NOVO serviço App do EasyPanel, sugerido `playbook-yuri`. Não se
 - Cookie assinado, HttpOnly, Secure, SameSite=Lax, válido por oito horas. A situação da compra é conferida a cada requisição protegida.
 - Bônus fora do HTML principal: servidor libera após 168 horas da primeira compra ainda aprovada. Mudar o relógio do navegador não antecipa a liberação.
 - Progresso local separado pelo ID do comprador. Não sincroniza entre aparelhos.
+- Modo escuro no cabeçalho do Playbook, com preferência salva por comprador neste navegador. No primeiro acesso acompanha o tema do dispositivo; uma escolha manual tem prioridade. Inclui leitura, busca, cartões e versão para celular.
 - Botão Sair e comando administrativo para liberar/revogar acessos manuais.
 - Limites de tentativas por e-mail e global, em memória. Use uma réplica inicialmente. Reiniciar limpa os contadores.
 
