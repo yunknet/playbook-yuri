@@ -1,0 +1,140 @@
+[
+  {
+    "sourceRow": 2,
+    "Event": "Purchase_Order_Confirmed",
+    "IsTest": false,
+    "CreatedAt": "2026-10-09T15:04:44Z",
+    "Data": {
+      "Products": [
+        {
+          "Id": "e8b41bd4-90c3-47d0-af99-66dbe458c015",
+          "Name": "Playbook - Yuri Cons\u00f3rcio",
+          "Price": 37.9,
+          "Quantity": 1
+        },
+        {
+          "Id": "167648e6-49ce-41c7-893f-49a97cf258ba",
+          "Name": "10 formatos de v\u00eddeos que viralizaram no meu Instagram.",
+          "Price": 19.9,
+          "Quantity": 1
+        }
+      ],
+      "Buyer": {
+        "Email": "buyer@example.com",
+        "Name": "Teste"
+      },
+      "Purchase": {
+        "PaymentId": "9a64b75a-e92a-4f2f-8b0c-6886c8af0e25",
+        "PaymentDate": "2026-10-09T15:04:44"
+      }
+    }
+  },
+  {
+    "sourceRow": 3,
+    "Event": "Payment_Refund",
+    "IsTest": false,
+    "CreatedAt": "2026-10-09T15:02:34Z",
+    "Data": {
+      "Products": [
+        {
+          "Id": "e8b41bd4-90c3-47d0-af99-66dbe458c015",
+          "Name": "Playbook - Yuri Cons\u00f3rcio",
+          "Price": 37.9,
+          "Quantity": 1
+        }
+      ],
+      "Buyer": {
+        "Email": "buyer@example.com",
+        "Name": "Teste"
+      },
+      "Purchase": {
+        "PaymentId": "64c3dc64-00ad-48f9-a2be-8cc5578dcdf5",
+        "PaymentDate": "2026-10-09T14:58:04"
+      }
+    }
+  },
+  {
+    "sourceRow": 4,
+    "Event": "Purchase_Order_Confirmed",
+    "IsTest": false,
+    "CreatedAt": "2026-10-09T14:58:52Z",
+    "Data": {
+      "Products": [
+        {
+          "Id": "e8b41bd4-90c3-47d0-af99-66dbe458c015",
+          "Name": "Playbook - Yuri Cons\u00f3rcio",
+          "Price": 37.9,
+          "Quantity": 1
+        }
+      ],
+      "Buyer": {
+        "Email": "buyer@example.com",
+        "Name": "Teste"
+      },
+      "Purchase": {
+        "PaymentId": "64c3dc64-00ad-48f9-a2be-8cc5578dcdf5",
+        "PaymentDate": "2026-10-09T14:58:52"
+      }
+    }
+  },
+  {
+    "sourceRow": 5,
+    "Event": "Payment_Refund",
+    "IsTest": false,
+    "CreatedAt": "2026-10-09T14:37:09Z",
+    "Data": {
+      "Products": [
+        {
+          "Id": "e8b41bd4-90c3-47d0-af99-66dbe458c015",
+          "Name": "Playbook - Yuri Cons\u00f3rcio",
+          "Price": 37.9,
+          "Quantity": 1
+        },
+        {
+          "Id": "167648e6-49ce-41c7-893f-49a97cf258ba",
+          "Name": "10 formatos de v\u00eddeos que viralizaram no meu Instagram.",
+          "Price": 19.9,
+          "Quantity": 1
+        }
+      ],
+      "Buyer": {
+        "Email": "buyer@example.com",
+        "Name": "Teste"
+      },
+      "Purchase": {
+        "PaymentId": "5d615a75-9904-4323-8e58-031aecb22fc1",
+        "PaymentDate": "2026-10-09T13:41:25"
+      }
+    }
+  },
+  {
+    "sourceRow": 6,
+    "Event": "Purchase_Order_Confirmed",
+    "IsTest": false,
+    "CreatedAt": "2026-10-09T13:42:11Z",
+    "Data": {
+      "Products": [
+        {
+          "Id": "e8b41bd4-90c3-47d0-af99-66dbe458c015",
+          "Name": "Playbook - Yuri Cons\u00f3rcio",
+          "Price": 37.9,
+          "Quantity": 1
+        },
+        {
+          "Id": "167648e6-49ce-41c7-893f-49a97cf258ba",
+          "Name": "10 formatos de v\u00eddeos que viralizaram no meu Instagram.",
+          "Price": 19.9,
+          "Quantity": 1
+        }
+      ],
+      "Buyer": {
+        "Email": "buyer@example.com",
+        "Name": "Teste"
+      },
+      "Purchase": {
+        "PaymentId": "5d615a75-9904-4323-8e58-031aecb22fc1",
+        "PaymentDate": "2026-10-09T13:42:08"
+      }
+    }
+  }
+]

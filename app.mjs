@@ -5,9 +5,10 @@ import {parseLastlinkEvent} from './lastlink.mjs';
 const root=new URL('./',import.meta.url);
 const files=Object.fromEntries(['public/login.html','private/playbook.html','private/bonus.html'].map(p=>[p,readFileSync(new URL(p,root),'utf8')]));
 const eq=(a,b)=>{const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y)};
-export function createApp({store,secret,origin,secure=true,now=()=>Date.now(),lastlinkProductId='',lastlinkWebhookSecret='',lastlinkToken=''}){
+export function createApp({store,secret,origin,secure=true,now=()=>Date.now(),lastlinkProductId='',lastlinkWebhookSecret='',lastlinkToken='',lastlinkReelsProductId=''}){
  if(!secret||secret.length<32)throw Error('SESSION_SECRET deve ter ao menos 32 caracteres.');
  if(lastlinkProductId&&!lastlinkWebhookSecret)throw Error('Configure LASTLINK_WEBHOOK_SECRET para ativar a integração.');
+ if(lastlinkReelsProductId&&(!lastlinkProductId||lastlinkReelsProductId===lastlinkProductId||typeof store.applyReelsLastlink!=='function'))throw Error('Configure um ID distinto para os Reels e seu armazenamento.');
  if(lastlinkWebhookSecret && !/^[a-f0-9]{64}$/.test(lastlinkWebhookSecret))throw Error('LASTLINK_WEBHOOK_SECRET precisa ter 64 caracteres hexadecimais.');
  const sign=x=>createHmac('sha256',secret).update(x).digest('base64url');
  const cookie=(v,age)=>`yuri_session=${v}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${age}${secure?'; Secure':''}`;
@@ -37,8 +38,12 @@ export function createApp({store,secret,origin,secure=true,now=()=>Date.now(),la
      return send(200,{ok:true,mode:'diagnostic',accessGranted:false});
     }
     const event=parseLastlinkEvent(body,lastlinkProductId);
-    if(event.kind==='invalid')return send(400,{error:'Evento inválido.'});
+    const reelsEvent=lastlinkReelsProductId?parseLastlinkEvent(body,lastlinkReelsProductId):null;
+    if(event.kind==='invalid'||reelsEvent?.kind==='invalid')return send(400,{error:'Evento inválido.'});
     if(event.kind==='purchase')await store.applyLastlink(event);
+    if(reelsEvent?.kind==='purchase')await store.applyReelsLastlink(reelsEvent);
+    if(reelsEvent)console.log('Lastlink Reels:',JSON.stringify({result:reelsEvent.kind,status:reelsEvent.status,
+     productMatched:Array.isArray(body?.Data?.Products)&&body.Data.Products.some(p=>p?.Id===lastlinkReelsProductId)}));
     console.log('Lastlink evento:',JSON.stringify({result:event.kind,tokenValidated:Boolean(lastlinkToken),
      productMatched:Array.isArray(body?.Data?.Products)&&body.Data.Products.some(p=>p?.Id===lastlinkProductId)}));
     return send(200,{ok:true});
